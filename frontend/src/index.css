@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.input-field {
+  @apply p-3 rounded-xl bg-white/20 text-white placeholder-gray-300 
+  focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all;
+}
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    #7C3AED,
+    #EC4899,
+    #06B6D4,
+    #7C3AED
+  );
+  background-size: 200% auto;
+  animation: gradientShift 4s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
