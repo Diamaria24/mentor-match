@@ -4,12 +4,11 @@ A peer-to-peer mentorship platform built using React + Node.js + Supabase that c
 
 👥 Team Details
 
-Team Name: MentorConnect
+Team Name: CodeQueens
+College: Saintgits College of Engineering, Kottayam
 
 Team Members:
-
 Anakh Sasidhara Kurup – Backend Development & Database Design
-
 Dia Maria Varghese – Frontend Development & UI/UX
 
 🔗 Hosted Project Link
@@ -218,7 +217,7 @@ Supabase (PostgreSQL + Auth + Realtime)
 
 🎥 Demo
 
-
+https://drive.google.com/file/d/1fklYnmwLFD3eruHqixYgJDuBDeC-tzIh/view?usp=drivesdk
 
 
 🔐 Database Tables
