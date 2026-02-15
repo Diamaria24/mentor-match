@@ -178,7 +178,7 @@ function LearnerDashboard() {
 
       <div className="flex-1 px-8 py-10 max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-6">
-          Learner Dashboard
+          Learner and Mentor Dashboard
         </h1>
 
         <input
