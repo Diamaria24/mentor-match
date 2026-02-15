@@ -1,47 +1,57 @@
-🎯 MentorMatch
+MentorMatch – Peer-to-Peer Mentorship Platform
 
-A peer-to-peer mentorship platform built using React + Node.js + Supabase that connects learners with suitable mentors using smart matching logic.
 
 👥 Team Details
 
 Team Name: CodeQueens
+
 College: Saintgits College of Engineering, Kottayam
 
-Team Members:
+Team Members
+
 Anakh Sasidhara Kurup – Backend Development & Database Design
+
 Dia Maria Varghese – Frontend Development & UI/UX
 
 🔗 Hosted Project Link
 
-Frontend: http://localhost:5173
+Frontend (Local): http://localhost:5173
 
-Backend API: http://localhost:5000
+Backend API (Local): http://localhost:5000
 
-hosted link:https://mentor-match-rust.vercel.app/auth
-
-(Replace with deployed links if hosted)
+Deployed Link: https://mentor-match-rust.vercel.app/auth
 
 📌 Project Description
 
-MentorMatch is a smart mentorship platform that connects learners with mentors based on skills, availability, and compatibility.
-It uses algorithmic matching and real-time updates to create an interactive and scalable mentoring experience.
+A smart mentorship platform connecting learners and mentors
+
+Uses algorithmic matching logic
+
+Supports real-time interaction & updates
+
+Secure and scalable architecture
 
 ❗ Problem Statement
 
-Many learners struggle to find the right mentor who matches their skills, interests, and availability.
-Existing platforms lack intelligent matching and real-time interaction.
+Learners struggle to find suitable mentors
+
+Lack of intelligent skill-based matching
+
+No real-time interaction in existing platforms
 
 ✅ Our Solution
 
 MentorMatch solves this by:
 
-Matching mentors and learners using a compatibility score
+✔ Matching mentors using a compatibility score
 
-Enabling mentorship requests and approvals
+✔ Enabling mentorship requests & approvals
 
-Providing ratings and reviews for credibility
+✔ Providing ratings & reviews
 
-Supporting real-time status updates
+✔ Supporting real-time updates
+
+✔ Ensuring secure role-based access
 
 🛠 Tech Stack
 Frontend
@@ -51,6 +61,8 @@ React (Vite)
 Tailwind CSS
 
 Supabase Client
+
+React Router DOM
 
 Backend
 
@@ -70,10 +82,16 @@ Row Level Security (RLS)
 
 Realtime Subscriptions
 
-🚀 Key Features
-1️ Smart Matching Score
+Deployment
 
-Calculates compatibility %
+Vercel (Frontend)
+
+GitHub (Version Control)
+
+🚀 Key Features
+1️⃣ Smart Matching Score
+
+Calculates compatibility percentage
 
 Based on:
 
@@ -81,102 +99,43 @@ Skills match (70%)
 
 Availability match (30%)
 
-Displays: “85% Compatibility”
+Example: “85% Compatibility”
 
-2️ Rating System
+2️⃣ Rating System
 
 Learners rate mentors (1–5 stars)
-Helps build mentor credibility
 
-3  Mentor Badges
+Builds mentor credibility
 
-Top Rated
+3️⃣ Mentor Badges
 
-Most Active
+🏆 Top Rated
 
-Verified Mentor
+⚡ Most Active
 
-5️ Role-Based Access (RLS)
-Users can insert/update only their own profile
+✅ Verified Mentor
+
+4️⃣ Role-Based Access (RLS)
+
+Users can modify only their own data
 
 Secure database policies
 
-6 Algorithmic AI (Smart Matching Logic)
+5️⃣ Algorithmic Matching Logic
 
-📂 Project Structure
-mentor-match/
-│
-├── backend/                     # Supabase
-│   ├── node_modules/            # Installed dependencies
-│   ├── index.js                 # Main server file
-│   ├── package.json             # Backend dependencies & scripts
-│   ├── package-lock.json
-│   └── .env                     # Environment variables (NOT pushed to Git)
-│
-├── frontend/                    # React (Vite) frontend
-│   ├── node_modules/
-│   ├── public/
-│   │   └── vite.svg
-│   │
-│   ├── src/
-│   │   ├── assets/              # Images, icons
-│   │   │
-│   │   ├── pages/               # Page components
-│   │   │   ├── Landing.jsx
-│   │   │   ├── Explore.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   └── Login.jsx
-│   │   │
-│   │   ├── supabaseClient.js    # Supabase configuration
-│   │   ├── App.jsx              # Main App component
-│   │   ├── main.jsx             # Entry point
-│   │   ├── App.css
-│   │   └── index.css
-│   │
-│   ├── index.html
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   └── eslint.config.js
-│
-├── .gitignore
-├── .gitattributes
-└── README.md
+AI-inspired compatibility scoring
 
-⚙ Installation
-Backend
-cd backend
-npm install
+<img width="1035" height="674" alt="image" src="https://github.com/user-attachments/assets/7a900e7c-7e57-4ac7-81ad-059548b89763" />
 
-Create .env file:
+API Endpoints
 
-SUPABASE_URL=your_project_url
-SUPABASE_ANON_KEY=your_anon_key
-PORT=5000
+GET /test → Returns all profiles
 
-Run:
+POST /create-test-profile → Creates test profile
 
-node index.js
+POST /request-mentorship → Creates mentorship request
 
-Frontend
-cd frontend
-npm install
-npm run dev
-
-📡 API Endpoints
-GET /test
-
-Returns all profiles
-
-POST /create-test-profile
-
-Creates a test profile in Supabase
-
-POST /request-mentorship
-
-Creates mentorship request
-🔐 Database Tables
+🗄 Database Tables
 profiles
 
 id (UUID)
@@ -209,67 +168,37 @@ status
 
 created_at
 
-🏗 System Architecture
+System Architecture 
 
-User (Frontend React)
+<img width="1134" height="748" alt="image" src="https://github.com/user-attachments/assets/702e1fe5-6e57-4178-84be-3fbe3924ddd4" />
+
+Architecture Flow
+
+User (React Frontend)
 ⬇
-Express Backend
-⬇
-Supabase (PostgreSQL + Auth + Realtime)
-
-🎥 Demo
-
-https://drive.google.com/file/d/1fklYnmwLFD3eruHqixYgJDuBDeC-tzIh/view?usp=drivesdk
-
-
-🔐 Database Tables
-profiles
-
-id (UUID)
-
-name
-
-role (mentor/learner)
-
-bio
-
-availability
-
-skills (text[])
-
-contact_method
-
-contact_value
-
-created_at
-
-mentorship_requests
-
-id
-
-learner_id
-
-mentor_id
-
-status
-
-created_at
-
-🏗 System Architecture
-
-User (Frontend React)
-⬇
-Express Backend
+Express Backend (API Layer)
 ⬇
 Supabase (PostgreSQL + Auth + Realtime)
 
-🎥 Demo
+Database ER marks 
 
+Entity Relationships
+
+profiles → linked to mentorship_requests
+
+mentorship_requests → linked to learners & mentors
+
+Optional: reviews, messages tables
+
+🎥 Demo Video
+
+🔗 https://drive.google.com/file/d/1fklYnmwLFD3eruHqixYgJDuBDeC-tzIh/view?usp=drivesdk
 
 🤖 AI Tools Used
 
 Tool: ChatGPT
-Purpose:
+
+Used For:
 
 Backend debugging
 
@@ -279,30 +208,36 @@ Code structuring
 
 Documentation formatting
 
-Approximate AI-generated assistance: ~30%
+Approximate AI assistance: ~30%
 
 👨‍💻 Team Contributions
+Anakh Sasidhara Kurup
 
-Anakha Sasidhara Kurup
+Backend API Development
 
-Backend API development
+Supabase Integration
 
-Supabase integration
+RLS Configuration
 
-RLS configuration
-
-Matching algorithm logic
+Matching Algorithm Logic
 
 Dia Maria Varghese
 
-UI/UX design
+UI/UX Design
 
-React components
+React Component Development
 
-Frontend integration
+Frontend Integration
 
-User flow implementation
+User Flow Implementation
 
 📄 License
 
-This project is licensed under the MIT License.
+MIT License
+
+
+
+
+Skill overlap detection
+
+Dynamic ranking of mentors
