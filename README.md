@@ -17,6 +17,8 @@ Frontend: http://localhost:5173
 
 Backend API: http://localhost:5000
 
+hosted link:https://mentor-match-rust.vercel.app/auth
+
 (Replace with deployed links if hosted)
 
 📌 Project Description
