@@ -3,71 +3,67 @@ import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleAuth = async (type) => {
-    if (type === "signup") {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-      if (error) {
-        alert(error.message);
-        return;
-      }
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      alert("Signup successful! Check email for confirmation.");
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!data) {
+      navigate("/create-profile/learner");
+      return;
+    }
+
+    if (data.role === "mentor") {
+      navigate("/mentor-dashboard");
     } else {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
-      navigate("/dashboard");
+      navigate("/learner-dashboard");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-100">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login / Signup</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-black text-white">
+      <div className="bg-white/10 p-10 rounded-3xl w-96 backdrop-blur-xl">
+        <h2 className="text-3xl mb-6 text-center">Login</h2>
 
         <input
-          type="email"
+          className="w-full p-3 mb-4 rounded-xl bg-white/20"
           placeholder="Email"
-          className="w-full mb-4 p-2 border rounded"
-          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
+          className="w-full p-3 mb-6 rounded-xl bg-white/20"
           placeholder="Password"
-          className="w-full mb-6 p-2 border rounded"
-          value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
         <button
-          onClick={() => handleAuth("login")}
-          className="w-full bg-blue-600 text-white py-2 rounded mb-3"
+          onClick={handleLogin}
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500"
         >
           Login
-        </button>
-
-        <button
-          onClick={() => handleAuth("signup")}
-          className="w-full border border-blue-600 text-blue-600 py-2 rounded"
-        >
-          Signup
         </button>
       </div>
     </div>

@@ -4,116 +4,255 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 function LearnerDashboard() {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [learnerProfile, setLearnerProfile] = useState(null);
   const [mentors, setMentors] = useState([]);
+  const [filteredMentors, setFilteredMentors] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // ✅ NEW — message + urgency state per mentor
+  const [messages, setMessages] = useState({});
+  const [urgencies, setUrgencies] = useState({});
 
   useEffect(() => {
-    fetchUser();
+    initializeDashboard();
   }, []);
 
-  const fetchUser = async () => {
+  const initializeDashboard = async () => {
+    await fetchLearnerProfile();
+  };
+
+  const fetchLearnerProfile = async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
-      setUser(user);
-      fetchProfile(user.id);
-      fetchMentors();
-      fetchRequests(user.id);
-    }
-  };
-
-  const fetchProfile = async (id) => {
     const { data } = await supabase
       .from("profiles")
       .select("*")
-      .eq("id", id)
+      .eq("id", user.id)
       .single();
 
-    setProfile(data);
+    setLearnerProfile(data);
+
+    fetchMentors(data);
+    fetchRequests(user.id);
   };
 
-  const fetchMentors = async () => {
-    const { data } = await supabase
+  // ===============================
+  // AI SCORE
+  // ===============================
+  const calculateScore = (mentor, learner) => {
+    if (!learner) return 0;
+
+    let score = 0;
+
+    if (
+      learner.skills &&
+      mentor.skills &&
+      mentor.skills.toLowerCase().includes(learner.skills.toLowerCase())
+    ) {
+      score += 5;
+    }
+
+    if (
+      learner.learning_goals &&
+      mentor.skills &&
+      mentor.skills
+        .toLowerCase()
+        .includes(learner.learning_goals.toLowerCase())
+    ) {
+      score += 4;
+    }
+
+    if (mentor.experience_level === "Expert") score += 4;
+    if (mentor.experience_level === "Intermediate") score += 2;
+
+    if (mentor.availability === "Full-Time") score += 3;
+
+    score += mentor.avgRating || 0;
+
+    return score;
+  };
+
+  // ===============================
+  // FETCH MENTORS
+  // ===============================
+  const fetchMentors = async (learnerData) => {
+    const { data: mentorsData } = await supabase
       .from("profiles")
       .select("*")
       .eq("role", "mentor");
 
-    setMentors(data || []);
+    const { data: reviewsData } = await supabase
+      .from("reviews")
+      .select("*");
+
+    const ratingMap = {};
+
+    (reviewsData || []).forEach((review) => {
+      if (!ratingMap[review.mentor_id]) {
+        ratingMap[review.mentor_id] = [];
+      }
+      ratingMap[review.mentor_id].push(review.rating);
+    });
+
+    const mentorsWithRatings = (mentorsData || []).map((mentor) => {
+      const ratings = ratingMap[mentor.id] || [];
+
+      const avgRating =
+        ratings.length > 0
+          ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+          : 0;
+
+      return {
+        ...mentor,
+        avgRating,
+        score: calculateScore({ ...mentor, avgRating }, learnerData),
+      };
+    });
+
+    const sortedMentors = mentorsWithRatings.sort(
+      (a, b) => b.score - a.score
+    );
+
+    setMentors(sortedMentors);
+    setFilteredMentors(sortedMentors);
   };
 
+  // ===============================
+  // FETCH REQUESTS
+  // ===============================
   const fetchRequests = async (learnerId) => {
     const { data } = await supabase
-      .from("requests")
+      .from("mentorship_requests")
       .select("*")
-      .eq("learner_id", learnerId);
+      .eq("learner_id", learnerId)
+      .order("urgency_days", { ascending: true });
 
     setRequests(data || []);
   };
 
+  // ===============================
+  // SEARCH
+  // ===============================
+  useEffect(() => {
+    const filtered = mentors.filter(
+      (mentor) =>
+        mentor.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mentor.skills?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setFilteredMentors(filtered);
+  }, [searchTerm, mentors]);
+
+  // ===============================
+  // SEND REQUEST (UPDATED)
+  // ===============================
   const sendRequest = async (mentorId) => {
-    await supabase.from("requests").insert([
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    await supabase.from("mentorship_requests").insert([
       {
         mentor_id: mentorId,
         learner_id: user.id,
         status: "pending",
+        urgency_days: urgencies[mentorId] || 3,
+        message:
+          messages[mentorId] || "I'd love to learn from you!",
       },
     ]);
+
+    // reset after send
+    setMessages((prev) => ({ ...prev, [mentorId]: "" }));
+    setUrgencies((prev) => ({ ...prev, [mentorId]: "" }));
 
     fetchRequests(user.id);
   };
 
-  const countByStatus = (status) =>
-    requests.filter((r) => r.status === status).length;
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-black text-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-black text-white flex flex-col">
       <Navbar />
 
-      <div className="flex-1 p-10 max-w-7xl mx-auto">
-
-        {/* Welcome Section */}
-        <h1 className="text-4xl font-bold mb-2">
-          Welcome back, {profile?.full_name} 👋
+      <div className="flex-1 px-8 py-10 max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6">
+          Learner Dashboard
         </h1>
-        <p className="text-gray-300 mb-8">
-          Here’s your mentorship activity overview.
-        </p>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <StatCard title="Pending Requests" value={countByStatus("pending")} />
-          <StatCard title="Accepted" value={countByStatus("accepted")} />
-          <StatCard title="Rejected" value={countByStatus("rejected")} />
-        </div>
+        <input
+          type="text"
+          placeholder="Search mentors..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-1/2 p-3 mb-10 rounded-xl bg-white/10 border border-white/20"
+        />
 
-        {/* Mentor Suggestions */}
         <h2 className="text-2xl font-semibold mb-6">
-          Recommended Mentors
+          Smart Mentor Recommendations
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {mentors.map((mentor) => (
+        <div className="grid md:grid-cols-2 gap-6 mb-16">
+          {filteredMentors.map((mentor) => (
             <div
               key={mentor.id}
-              className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white/20"
+              className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl border border-white/20 shadow-xl"
             >
+              {mentor.score >= 7 && (
+                <span className="text-green-400 text-xs mb-2 block">
+                  🔥 AI Recommended
+                </span>
+              )}
+
               <h3 className="text-xl font-bold mb-2">
                 {mentor.full_name}
               </h3>
-              <p className="text-gray-300 mb-2">
-                Skills: {mentor.skills}
+
+              <p>Skills: {mentor.skills}</p>
+              <p>Experience: {mentor.experience_level}</p>
+
+              <p className="text-yellow-400">
+                ⭐{" "}
+                {mentor.avgRating
+                  ? mentor.avgRating.toFixed(1)
+                  : "No ratings"}
               </p>
-              <p className="text-gray-400 text-sm mb-4">
-                Experience: {mentor.experience_level}
+
+              <p className="text-purple-400 mb-4">
+                AI Score: {mentor.score}
               </p>
+
+              {/* ✅ MESSAGE FIELD */}
+              <textarea
+                placeholder="Write a message..."
+                value={messages[mentor.id] || ""}
+                onChange={(e) =>
+                  setMessages((prev) => ({
+                    ...prev,
+                    [mentor.id]: e.target.value,
+                  }))
+                }
+                className="w-full p-2 mb-3 rounded-lg bg-white/10 border border-white/20"
+              />
+
+              {/* ✅ URGENCY FIELD */}
+              <input
+                type="number"
+                placeholder="Urgency (days)"
+                value={urgencies[mentor.id] || ""}
+                onChange={(e) =>
+                  setUrgencies((prev) => ({
+                    ...prev,
+                    [mentor.id]: e.target.value,
+                  }))
+                }
+                className="w-full p-2 mb-4 rounded-lg bg-white/10 border border-white/20"
+              />
 
               <button
                 onClick={() => sendRequest(mentor.id)}
-                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 py-2 rounded-xl hover:opacity-90 transition"
+                className="w-full py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500"
               >
                 Send Request
               </button>
@@ -121,7 +260,7 @@ function LearnerDashboard() {
           ))}
         </div>
 
-        {/* My Requests */}
+        {/* REQUESTS */}
         <h2 className="text-2xl font-semibold mb-6">
           My Requests
         </h2>
@@ -130,43 +269,30 @@ function LearnerDashboard() {
           {requests.map((req) => (
             <div
               key={req.id}
-              className="bg-white/10 backdrop-blur-xl p-4 rounded-xl flex justify-between items-center border border-white/20"
+              className="bg-white/10 p-4 rounded-xl"
             >
-              <span>Mentor ID: {req.mentor_id}</span>
-              <StatusBadge status={req.status} />
+              <p className="mb-1">
+                <strong>Message:</strong> {req.message}
+              </p>
+
+              <p className="text-sm text-gray-300 mb-1">
+                Urgency: {req.urgency_days} days
+              </p>
+
+              <p>Status: {req.status}</p>
+
+              {req.urgency_days <= 2 && (
+                <span className="text-red-400 text-sm">
+                  ⚡ High Priority
+                </span>
+              )}
             </div>
           ))}
         </div>
-
       </div>
 
       <Footer />
     </div>
-  );
-}
-
-function StatCard({ title, value }) {
-  return (
-    <div className="bg-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-white/20 text-center">
-      <h3 className="text-lg text-gray-300">{title}</h3>
-      <p className="text-4xl font-bold mt-2">{value}</p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const colors = {
-    pending: "bg-yellow-500",
-    accepted: "bg-green-500",
-    rejected: "bg-red-500",
-  };
-
-  return (
-    <span
-      className={`px-4 py-1 rounded-full text-sm ${colors[status]}`}
-    >
-      {status}
-    </span>
   );
 }
 
